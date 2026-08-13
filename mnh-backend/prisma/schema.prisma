@@ -1,0 +1,220 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --------------------------------------------
+// Modelo: Usuario (usuários do sistema)
+// --------------------------------------------
+model Usuario {
+  id             Int       @id @default(autoincrement())
+  nome           String    @db.VarChar(255)
+  nomeUsuario    String    @unique @map("nome_usuario") @db.VarChar(255)
+  senhaHash      String    @map("senha_hash") @db.VarChar(255)
+  // Prisma não suporta CHECK constraints — aplicar via SQL na migration:
+  // CONSTRAINT usuario_tipo_check CHECK (tipo IN ('superadmin', 'admin'))
+  tipo           String    @default("admin") @db.VarChar(20)
+
+  // Auditoria
+  criadoPor      Int?      @map("criado_por")
+  criadoEm       DateTime  @default(now()) @map("criado_em") @db.Timestamptz
+  atualizadoPor  Int?      @map("atualizado_por")
+  atualizadoEm   DateTime  @updatedAt @map("atualizado_em") @db.Timestamptz
+  ativo          Boolean   @default(true)
+
+  // Auto-relação para auditoria
+  criador        Usuario?  @relation("UsuarioCriadoPor", fields: [criadoPor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  atualizador    Usuario?  @relation("UsuarioAtualizadoPor", fields: [atualizadoPor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  usuariosCriados   Usuario[] @relation("UsuarioCriadoPor")
+  usuariosAtualizados Usuario[] @relation("UsuarioAtualizadoPor")
+
+  // Relações com outras tabelas
+  jogosCriados        Jogo[]    @relation("JogoCriadoPor")
+  jogosAtualizados    Jogo[]    @relation("JogoAtualizadoPor")
+  partidasCriadas     Partida[] @relation("PartidaCriadoPor")
+  partidasAtualizadas Partida[] @relation("PartidaAtualizadoPor")
+  jogadoresCriados    Jogador[] @relation("JogadorCriadoPor")
+  jogadoresAtualizados Jogador[] @relation("JogadorAtualizadoPor")
+  presencasCriadas    JogadorPresenca[] @relation("JogadorPresencaCriadoPor")
+  presencasAtualizadas JogadorPresenca[] @relation("JogadorPresencaAtualizadoPor")
+  niveisCriados       NivelJogo[] @relation("NivelJogoCriadoPor")
+  niveisAtualizados   NivelJogo[] @relation("NivelJogoAtualizadoPor")
+
+  @@map("usuario")
+}
+
+// --------------------------------------------
+// Modelo: Jogo
+// --------------------------------------------
+model Jogo {
+  id            Int      @id @default(autoincrement())
+  nome          String   @db.VarChar(255)
+  configCampos  Json     @map("config_campos")
+  descricao     String?  @db.Text
+
+  // Auditoria
+  criadoPor     Int?     @map("criado_por")
+  criadoEm      DateTime @default(now()) @map("criado_em") @db.Timestamptz
+  atualizadoPor Int?     @map("atualizado_por")
+  atualizadoEm  DateTime @updatedAt @map("atualizado_em") @db.Timestamptz
+  ativo         Boolean  @default(true)
+
+  criador       Usuario? @relation("JogoCriadoPor", fields: [criadoPor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  atualizador   Usuario? @relation("JogoAtualizadoPor", fields: [atualizadoPor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  partidas      Partida[]
+  niveis        NivelJogo[]
+
+  @@map("jogo")
+}
+
+// --------------------------------------------
+// Modelo: Partida
+// --------------------------------------------
+model Partida {
+  id            Int      @id @default(autoincrement())
+  jogoId        Int      @map("id_jogo")
+  nivelJogoId   Int?     @map("id_nivel_jogo")
+  jogadaEm      DateTime @map("jogada_em") @db.Timestamptz
+
+  // Auditoria
+  criadoPor     Int?     @map("criado_por")
+  criadoEm      DateTime @default(now()) @map("criado_em") @db.Timestamptz
+  atualizadoPor Int?     @map("atualizado_por")
+  atualizadoEm  DateTime @updatedAt @map("atualizado_em") @db.Timestamptz
+  ativo         Boolean  @default(true)
+
+  jogo          Jogo     @relation(fields: [jogoId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  nivelJogo     NivelJogo? @relation(fields: [nivelJogoId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  criador       Usuario? @relation("PartidaCriadoPor", fields: [criadoPor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  atualizador   Usuario? @relation("PartidaAtualizadoPor", fields: [atualizadoPor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  resultados    PartidaResultado[]
+
+  @@index([jogoId])
+  @@index([nivelJogoId])
+  @@map("partida")
+}
+
+// --------------------------------------------
+// Modelo: PartidaResultado (resultado/estatísticas por jogador)
+// --------------------------------------------
+model PartidaResultado {
+  id            Int      @id @default(autoincrement())
+  jogadorId     Int      @map("id_jogador")
+  partidaId     Int      @map("id_partida")
+  estatisticas  Json     @map("estatisticas")
+  posicaoFinal  Int?     @map("posicao_final")
+  vencedor      Boolean  @default(false)
+
+  jogador       Jogador  @relation(fields: [jogadorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  partida       Partida  @relation(fields: [partidaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([partidaId, jogadorId])
+  @@index([partidaId])
+  @@index([jogadorId])
+  @@map("partida_resultado")
+}
+
+// --------------------------------------------
+// Modelo: Jogador
+// --------------------------------------------
+model Jogador {
+  id            Int      @id @default(autoincrement())
+  nome          String   @db.VarChar(255)
+  instagram     String?  @db.VarChar(255)
+  telefone      String?  @db.VarChar(30)
+
+  // Auditoria
+  criadoPor     Int?     @map("criado_por")
+  criadoEm      DateTime @default(now()) @map("criado_em") @db.Timestamptz
+  atualizadoPor Int?     @map("atualizado_por")
+  atualizadoEm  DateTime @updatedAt @map("atualizado_em") @db.Timestamptz
+  ativo         Boolean  @default(true)
+
+  criador       Usuario? @relation("JogadorCriadoPor", fields: [criadoPor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  atualizador   Usuario? @relation("JogadorAtualizadoPor", fields: [atualizadoPor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  resultados    PartidaResultado[]
+  presencas     JogadorPresenca[]
+  niveis        JogadorNivelJogo[]
+
+  @@map("jogador")
+}
+
+// --------------------------------------------
+// Modelo: JogadorPresenca
+// --------------------------------------------
+model JogadorPresenca {
+  id            Int      @id @default(autoincrement())
+  jogadorId     Int      @map("id_jogador")
+  dataPresenca  DateTime @map("data_presenca") @db.Date
+
+  // Auditoria
+  criadoPor     Int?     @map("criado_por")
+  criadoEm      DateTime @default(now()) @map("criado_em") @db.Timestamptz
+  atualizadoPor Int?     @map("atualizado_por")
+  atualizadoEm  DateTime @updatedAt @map("atualizado_em") @db.Timestamptz
+  ativo         Boolean  @default(true)
+
+  jogador       Jogador  @relation(fields: [jogadorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  criador       Usuario? @relation("JogadorPresencaCriadoPor", fields: [criadoPor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  atualizador   Usuario? @relation("JogadorPresencaAtualizadoPor", fields: [atualizadoPor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([jogadorId, dataPresenca])
+  @@index([jogadorId])
+  @@map("jogador_presenca")
+}
+
+// --------------------------------------------
+// Modelo: JogadorNivelJogo (associativa sem auditoria)
+// --------------------------------------------
+model JogadorNivelJogo {
+  id            Int       @id @default(autoincrement())
+  jogadorId     Int       @map("id_jogador")
+  nivelJogoId   Int       @map("id_nivel_jogo")
+
+  jogador       Jogador   @relation(fields: [jogadorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  nivelJogo     NivelJogo @relation(fields: [nivelJogoId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([jogadorId, nivelJogoId])
+  @@index([jogadorId])
+  @@index([nivelJogoId])
+  @@map("jogador_nivel_jogo")
+}
+
+// --------------------------------------------
+// Modelo: NivelJogo
+// --------------------------------------------
+model NivelJogo {
+  id            Int      @id @default(autoincrement())
+  jogoId        Int      @map("id_jogo")
+  nivel         Int
+  modelo        String?  @db.VarChar(255)
+
+  // Auditoria
+  criadoPor     Int?     @map("criado_por")
+  criadoEm      DateTime @default(now()) @map("criado_em") @db.Timestamptz
+  atualizadoPor Int?     @map("atualizado_por")
+  atualizadoEm  DateTime @updatedAt @map("atualizado_em") @db.Timestamptz
+  ativo         Boolean  @default(true)
+
+  jogo          Jogo     @relation(fields: [jogoId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  criador       Usuario? @relation("NivelJogoCriadoPor", fields: [criadoPor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  atualizador   Usuario? @relation("NivelJogoAtualizadoPor", fields: [atualizadoPor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  partidas      Partida[]
+  jogadoresNiveis JogadorNivelJogo[]
+
+  @@unique([jogoId, nivel])
+  @@index([jogoId])
+  @@map("nivel_jogo")
+}
