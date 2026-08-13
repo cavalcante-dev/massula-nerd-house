@@ -1,0 +1,104 @@
+{
+	"nodes":[
+		{"id":"0ebfc2b465740fcc","type":"text","text":" # partida\n\n| coluna         | tipo      |\n| -------------- | --------- |\n| id             | int(pk)   |\n| id_jogo        | int(fk)   |\n| id_nivel_jogo  | int(fk)   |\n| jogada_em      | timestamp |\n| criado_por     | int(fk)   |\n| criado_em      | timestamp |\n| atualizado_por | int(fk)   |\n| atualizado_em  | timestamp |\n| ativo          | boolean   |\n\n\n\n\n","x":360,"y":-446,"width":240,"height":383},
+		{"id":"8bf9e0d519f3abbb","type":"text","text":" # partida_resultado\n\n| coluna        | tipo    |\n| ------------- | ------- |\n| id            | int(pk) |\n| id_jogador    | int(fk) |\n| id_partida    | int(fk) |\n| estatisticas  | JSONB   |\n| posicao_final | int     |\n\n\n\n\n\n","x":-100,"y":-720,"width":200,"height":300},
+		{"id":"3876c7da4ed1bcdc","type":"text","text":" # jogador\n\n| coluna         | tipo      |\n| -------------- | --------- |\n| id             | int(pk)   |\n| nome           | varchar   |\n| instagram      | varchar   |\n| telefone       | varchar   |\n| criado_por     | int(fk)   |\n| criado_em      | timestamp |\n| atualizado_por | int(fk)   |\n| atualizado_em  | timestamp |\n| ativo          | boolean   |\n\n\n\n\n","x":360,"y":60,"width":240,"height":383},
+		{"id":"705d21e23d8059be","type":"text","text":" # jogo\n\n| coluna         | tipo      |\n| -------------- | --------- |\n| id             | int(pk)   |\n| nome           | varchar   |\n| config_campos  | JSONB     |\n| descricao      | text      |\n| criado_por     | int(fk)   |\n| criado_em      | timestamp |\n| atualizado_por | int(fk)   |\n| atualizado_em  | timestamp |\n| ativo          | boolean   |\n\n\n\n\n\n","x":700,"y":-720,"width":240,"height":383},
+		{"id":"88b8476618346091","type":"text","text":" # jogador_nivel_jogo\n\n| coluna        | tipo    |\n| ------------- | ------- |\n| id            | int(pk) |\n| id_jogador    | int(fk) |\n| id_nivel_jogo | int(fk) |\n\n\n\n\n\n","x":940,"y":-161,"width":200,"height":247},
+		{"id":"b590ed20ff4cb4e0","type":"text","text":" # jogador_presenca\n\n| coluna         | tipo      |\n| -------------- | --------- |\n| id             | int(pk)   |\n| id_jogador     | int(fk)   |\n| registrada_em  | timestamp |\n| criado_por     | int(fk)   |\n| criado_em      | timestamp |\n| atualizado_por | int(fk)   |\n| atualizado_em  | timestamp |\n| ativo          | boolean   |\n\n\n\n\n\n\n","x":940,"y":178,"width":240,"height":356},
+		{"id":"54a70cde69c065f9","type":"text","text":"# usuario \n\n| coluna         | tipo           |\n| -------------- | -------------- |\n| id             | int(plk)       |\n| nome           | varchar        |\n| nome_usuario   | varchar unique |\n| senha          | varchar        |\n| tipo           | enum           |\n| criado_por     | int(fk)        |\n| criado_em      | timestamp      |\n| atualizado_por | int(fk)        |\n| atualizado_em  | timestamp      |\n| ativo          | boolean        |\n\n","x":-160,"y":-240,"width":260,"height":410},
+		{"id":"b0c108265def3044","type":"text","text":" # nivel_jogo\n\n| coluna         | tipo      |\n| -------------- | --------- |\n| id             | int(pk)   |\n| id_jogo        | int(fk)   |\n| nivel          | int       |\n| modelo         | varchar   |\n| criado_por     | int(fk)   |\n| criado_em      | timestamp |\n| atualizado_por | int(fk)   |\n| atualizado_em  | timestamp |\n| ativo          | boolean   |\n\n\n\n\n\n","x":700,"y":-1320,"width":240,"height":383}
+	],
+	"edges":[
+		{
+			"id":"bed314c82a090497",
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"54a70cde69c065f9",
+			"fromSide":"right",
+			"toNode":"0ebfc2b465740fcc",
+			"toSide":"left",
+			"label":"registra\n1 : N"
+		},
+		{
+			"id":"bfed1988aa735117",
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"0ebfc2b465740fcc",
+			"fromSide":"top",
+			"toNode":"705d21e23d8059be",
+			"toSide":"left",
+			"label":"é de\n1 : N"
+		},
+		{
+			"id":"fa7a2bb140f03ab9",
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"toFloating":false,
+			"fromNode":"54a70cde69c065f9",
+			"fromSide":"right",
+			"toNode":"3876c7da4ed1bcdc",
+			"toSide":"left",
+			"label":"adiciona\n1 : N"
+		},
+		{
+			"id":"682d809b92b35641",
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"3876c7da4ed1bcdc",
+			"fromSide":"right",
+			"toNode":"b590ed20ff4cb4e0",
+			"toSide":"left",
+			"label":"possui\n1 : N"
+		},
+		{
+			"id":"f9532738554008f4",
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"toFloating":false,
+			"fromNode":"3876c7da4ed1bcdc",
+			"fromSide":"right",
+			"toNode":"88b8476618346091",
+			"toSide":"left",
+			"label":"possui\n1 : N"
+		},
+		{
+			"id":"540e23c962b22c0c",
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"88b8476618346091",
+			"fromSide":"top",
+			"toNode":"705d21e23d8059be",
+			"toSide":"right",
+			"label":"referencia\nN : N"
+		},
+		{
+			"id":"39601dc73c72df2c",
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"8bf9e0d519f3abbb",
+			"fromSide":"right",
+			"toNode":"0ebfc2b465740fcc",
+			"toSide":"left",
+			"label":"detalha\nN : 1"
+		},
+		{
+			"id":"c1eb2e6e2d4b8c42",
+			"styleAttributes":{"pathfindingMethod":"square"},
+			"toFloating":false,
+			"fromFloating":false,
+			"fromNode":"705d21e23d8059be",
+			"fromSide":"top",
+			"toNode":"b0c108265def3044",
+			"toSide":"bottom",
+			"label":"possui\n1 : N"
+		}
+	],
+	"metadata":{
+		"version":"1.0-1.0",
+		"frontmatter":{}
+	}
+}
