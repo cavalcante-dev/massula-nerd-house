@@ -33,6 +33,20 @@ const Usuario = sequelize.define('Usuario', {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+  criado_por: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'usuario',
+      key: 'id',
+    },
+  },
+  atualizado_por: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'usuario',
+      key: 'id',
+    },
+  },
 }, {
   tableName: 'usuario',
   freezeTableName: true,

@@ -34,10 +34,10 @@ const encontrarNiveisPorJogo = async (id_jogo) => {
   });
 };
 
-const criarOuAtualizarNivel = async (id_jogador, id_jogo, nivel) => {
+const criarOuAtualizarNivel = async (id_jogador, id_jogo, nivel, criado_por) => {
   const [nivelJogo] = await NivelJogo.findOrCreate({
     where: { id_jogo, nivel },
-    defaults: { id_jogo, nivel },
+    defaults: { id_jogo, nivel, criado_por },
   });
 
   const [registro] = await JogadorNivelJogo.findOrCreate({

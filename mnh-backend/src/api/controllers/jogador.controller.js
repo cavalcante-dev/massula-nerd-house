@@ -7,6 +7,7 @@ const jogadorServices = require('../services/jogador.service');
 exports.registrar = async (req, res) => {
   try {
     const { nome, instagram, telefone } = req.body;
+    const criado_por = req.usuario.id;
 
     if (!nome || !nome.trim()) {
       return res.status(400).json({ erro: 'Nome do jogador é obrigatório.' });
@@ -17,6 +18,7 @@ exports.registrar = async (req, res) => {
       instagram,
       telefone,
       ativo: true,
+      criado_por
     });
 
     return res.status(201).json({
@@ -24,6 +26,7 @@ exports.registrar = async (req, res) => {
       nome: jogador.nome,
       instagram: jogador.instagram,
       telefone: jogador.telefone,
+      criado_por: criado_por
     });
   } catch (err) {
     return res.status(500).json({ erro: 'Erro ao registrar jogador.', codigo: err.message });
@@ -99,6 +102,7 @@ exports.atualizar = async (req, res) => {
   try {
     const { nome, instagram, telefone } = req.body;
     const { id } = req.params;
+    const atualizado_por = req.usuario.id;
     const jogador = await jogadorServices.encontrarJogador(id);
 
     if (!jogador) {
@@ -109,6 +113,7 @@ exports.atualizar = async (req, res) => {
     if (instagram !== undefined) jogador.instagram = instagram;
     if (telefone !== undefined) jogador.telefone = telefone;
 
+    jogador.atualizado_por = atualizado_por;
     await jogador.save();
 
     return res.status(200).json({
@@ -138,6 +143,7 @@ exports.desativar = async (req, res) => {
 
     if (jogador.ativo) {
       jogador.ativo = false;
+      jogador.atualizado_por = req.usuario.id;
       await jogador.save();
       return res.status(200).json({ sucesso: 'Jogador desativado com sucesso.' });
     } else {
@@ -160,6 +166,7 @@ exports.reativar = async (req, res) => {
 
     if (!jogador.ativo) {
       jogador.ativo = true;
+      jogador.atualizado_por = req.usuario.id;
       await jogador.save();
       return res.status(200).json({ sucesso: 'Jogador reativado com sucesso.' });
     } else {
@@ -176,6 +183,7 @@ exports.registrarPresenca = async (req, res) => {
   try {
     const { id } = req.params;
     const { data } = req.body;
+    const criado_por = req.usuario.id;
 
     if (!dataHelpers.validarData(data)) {
       return res.status(400).json({ erro: 'Data inválida. Use o formato dd/mm/aaaa.' });
@@ -205,7 +213,8 @@ exports.registrarPresenca = async (req, res) => {
 
     const novaPresenca = await JogadorPresenca.create({
       id_jogador: id,
-      data_presenca: dataPresenca
+      data_presenca: dataPresenca,
+      criado_por,
     }, { transaction: t });
 
     const totalPresencas = await JogadorPresenca.count({

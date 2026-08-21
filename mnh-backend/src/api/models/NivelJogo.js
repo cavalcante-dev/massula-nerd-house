@@ -27,6 +27,21 @@ const NivelJogo = sequelize.define('NivelJogo', {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+  criado_por: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'usuario', 
+      key: 'id',
+    },
+  },
+  atualizado_por: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'usuario',
+      key: 'id',
+    },
+  }
 }, {
   tableName: 'nivel_jogo',
   freezeTableName: true,

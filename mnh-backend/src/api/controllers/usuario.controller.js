@@ -40,6 +40,7 @@ exports.registrar = async (req, res) => {
       senha_hash: hashed,
       tipo: tipoPermitido,
       ativo: true,
+      criado_por: usuarioLogado.id,
     });
 
     return res.status(201).json({
@@ -159,6 +160,7 @@ exports.atualizar = async (req, res) => {
       usuario.ativo = ativo === true || ativo === 'true' || ativo === 1;
     }
 
+    usuario.atualizado_por = usuarioLogado.id;
     await usuario.save();
 
     return res.status(200).json({
@@ -200,6 +202,7 @@ exports.desativar = async (req, res) => {
     }
 
     usuario.ativo = false;
+    usuario.atualizado_por = usuarioLogado.id;
     await usuario.save();
     return res.status(200).json({ sucesso: 'Usuário desativado com sucesso.' });
   } catch (err) {
@@ -227,6 +230,7 @@ exports.reativar = async (req, res) => {
     }
 
     usuario.ativo = true;
+    usuario.atualizado_por = usuarioLogado.id;
     await usuario.save();
     return res.status(200).json({ sucesso: 'Usuário reativado com sucesso.' });
   } catch (err) {

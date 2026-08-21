@@ -28,24 +28,25 @@ const listarPartidas = async (filtros = {}) => {
 };
 
 const criarPartida = async (dados) => {
-  const { id_jogo, nivel, jogada_em } = dados;
+  const { id_jogo, nivel, jogada_em, criado_por } = dados;
 
   const [nivelJogo] = await NivelJogo.findOrCreate({
     where: { id_jogo, nivel },
-    defaults: { id_jogo, nivel },
+    defaults: { id_jogo, nivel, criado_por },
   });
 
   return await Partida.create({
     id_jogo,
     id_nivel_jogo: nivelJogo.id,
     jogada_em,
+    criado_por
   });
 };
 
-const atualizarPartida = async (id, dados) => {
+const atualizarPartida = async (id, dados, atualizado_por) => {
   const partida = await encontrarPartida(id);
   if (!partida) throw new Error('Partida não encontrada');
-  await partida.update(dados);
+  await partida.update({ ...dados, atualizado_por });
   return partida;
 };
 

@@ -4,6 +4,8 @@ const jogoService = require('../services/jogo.service');
 exports.criarPartida = async (req, res) => {
   try {
     const { id_jogo, nivel, jogada_em } = req.body;
+    const criado_por = req.usuario.id;
+
     if (!id_jogo || !nivel || !jogada_em) {
       return res.status(400).json({ erro: 'Campos obrigatórios: id_jogo, nivel, jogada_em.' });
     }
@@ -18,7 +20,7 @@ exports.criarPartida = async (req, res) => {
       return res.status(400).json({ erro: 'Campo jogada_em deve ser uma data válida (ISO 8601).' });
     }
 
-    const partida = await partidasService.criarPartida({ id_jogo, nivel, jogada_em: dataJogada });
+    const partida = await partidasService.criarPartida({ id_jogo, nivel, jogada_em: dataJogada, criado_por });
     return res.status(201).json(partida);
   } catch (err) {
     if (err.name === 'SequelizeForeignKeyConstraintError') {
@@ -53,7 +55,8 @@ exports.atualizarPartida = async (req, res) => {
   try {
     const { id } = req.params;
     const dados = req.body;
-    const partida = await partidasService.atualizarPartida(id, dados);
+    const atualizado_por = req.usuario.id;
+    const partida = await partidasService.atualizarPartida(id, dados, atualizado_por);
     return res.json({ sucesso: true, partida });
   } catch (err) {
     return res.status(500).json({ erro: err.message });

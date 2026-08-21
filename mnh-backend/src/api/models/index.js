@@ -14,6 +14,7 @@ const JogadorPresenca = require('./JogadorPresenca');
 
 // ---- NivelJogo ----
 NivelJogo.belongsTo(Jogo, { foreignKey: 'id_jogo', as: 'jogo' });
+NivelJogo.belongsTo(Usuario, { foreignKey: 'criado_por', as: 'usuario' });
 Jogo.hasMany(NivelJogo, { foreignKey: 'id_jogo', as: 'niveis' });
 
 // ---- JogadorNivelJogo ----
@@ -25,6 +26,7 @@ NivelJogo.hasMany(JogadorNivelJogo, { foreignKey: 'id_nivel_jogo', as: 'jogadore
 // ---- Partida ----
 Partida.belongsTo(Jogo, { foreignKey: 'id_jogo', as: 'jogo' });
 Partida.belongsTo(NivelJogo, { foreignKey: 'id_nivel_jogo', as: 'nivelJogo' });
+Partida.belongsTo(Usuario, { foreignKey: 'criado_por', as: 'usuario' });
 Jogo.hasMany(Partida, { foreignKey: 'id_jogo', as: 'partidas' });
 
 // ---- PartidaResultado ----
@@ -35,7 +37,14 @@ Jogador.hasMany(PartidaResultado, { foreignKey: 'id_jogador', as: 'resultados' }
 
 // ---- JogadorPresenca ----
 JogadorPresenca.belongsTo(Jogador, { foreignKey: 'id_jogador', as: 'jogador' });
+JogadorPresenca.belongsTo(Usuario, { foreignKey: 'criado_por', as: 'usuario' });
 Jogador.hasMany(JogadorPresenca, { foreignKey: 'id_jogador', as: 'presencas' });
+
+// ---- Jogador ----
+Jogador.belongsTo(Usuario, { foreignKey: 'criado_por', as: 'usuario' });
+
+// ---- Jogo ----
+Jogo.belongsTo(Usuario, { foreignKey: 'criado_por', as: 'usuario' });
 
 // Exportar todos os modelos
 module.exports = {

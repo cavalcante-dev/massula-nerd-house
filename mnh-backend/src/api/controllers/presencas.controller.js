@@ -9,6 +9,7 @@ exports.registrarPresenca = async (req, res) => {
   try {
     const { id_jogador } = req.params;
     const { data } = req.body;
+    const criado_por = req.usuario.id;
 
     if (!dataHelpers.validarData(data)) {
       await t.rollback();
@@ -33,7 +34,7 @@ exports.registrarPresenca = async (req, res) => {
       return res.status(409).json({ erro: 'Presença já registrada nessa data.' });
     }
 
-    const presenca = await presencasService.registrarNovaPresenca(id_jogador, dataPresenca, t);
+    const presenca = await presencasService.registrarNovaPresenca(id_jogador, dataPresenca, criado_por, t);
 
     const totalPresencas = await presencasService.contarPresencasPorJogador(id_jogador);
 
@@ -45,6 +46,7 @@ exports.registrarPresenca = async (req, res) => {
         id: jogador.id,
         nome: jogador.nome,
         patente: jogadorService.calcularPatente(totalPresencas),
+        criado_por: criado_por
       },
     });
   } catch (err) {

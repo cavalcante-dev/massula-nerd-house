@@ -24,6 +24,21 @@ const JogadorPresenca = sequelize.define('JogadorPresenca', {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+  criado_por: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'usuario', 
+      key: 'id',
+    },
+  },
+  atualizado_por: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'usuario',
+      key: 'id',
+    },
+  }
 }, {
   tableName: 'jogador_presenca',
   freezeTableName: true,

@@ -5,6 +5,7 @@ const jogoServices = require('../services/jogo.service');
 exports.registrar = async (req, res) => {
   try {
     const { nome, descricao, config_campos } = req.body;
+    const criado_por = req.usuario.id;
 
     if (!nome || !nome.trim()) {
       return res.status(400).json({ erro: 'Nome do jogo é obrigatório.' });
@@ -15,6 +16,7 @@ exports.registrar = async (req, res) => {
       descricao,
       config_campos: config_campos !== undefined ? config_campos : [],
       ativo: true,
+      criado_por,
     });
 
     return res.status(201).json({
@@ -23,6 +25,7 @@ exports.registrar = async (req, res) => {
       descricao: jogo.descricao,
       config_campos: jogo.config_campos,
       ativo: jogo.ativo,
+      criado_por: jogo.criado_por,
     });
   } catch (err) {
     return res.status(500).json({ erro: 'Erro ao registrar jogo.', codigo: err.message });
@@ -78,6 +81,7 @@ exports.atualizar = async (req, res) => {
   try {
     const { nome, descricao, config_campos } = req.body;
     const { id } = req.params;
+    const atualizado_por = req.usuario.id;
     const jogo = await jogoServices.encontrarJogo(id);
 
     if (!jogo) {
@@ -88,6 +92,7 @@ exports.atualizar = async (req, res) => {
     if (descricao !== undefined) jogo.descricao = descricao;
     if (config_campos !== undefined) jogo.config_campos = config_campos;
 
+    jogo.atualizado_por = atualizado_por;
     await jogo.save();
 
     return res.status(200).json({
@@ -117,6 +122,7 @@ exports.desativar = async (req, res) => {
 
     if (jogo.ativo) {
       jogo.ativo = false;
+      jogo.atualizado_por = req.usuario.id;
       await jogo.save();
       return res.status(200).json({ sucesso: 'Jogo desativado com sucesso.' });
     } else {
@@ -139,6 +145,7 @@ exports.reativar = async (req, res) => {
 
     if (!jogo.ativo) {
       jogo.ativo = true;
+      jogo.atualizado_por = req.usuario.id;
       await jogo.save();
       return res.status(200).json({ sucesso: 'Jogo reativado com sucesso.' });
     } else {

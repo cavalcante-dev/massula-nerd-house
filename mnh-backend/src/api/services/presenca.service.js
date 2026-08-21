@@ -12,8 +12,8 @@ const verificarPresencaNaData = async (id_jogador, data_presenca) => {
   return !!presenca;
 };
 
-const registrarNovaPresenca = async (id_jogador, data_presenca, transaction = null) => {
-  return await JogadorPresenca.create({ id_jogador, data_presenca }, { transaction });
+const registrarNovaPresenca = async (id_jogador, data_presenca, criado_por, transaction = null) => {
+  return await JogadorPresenca.create({ id_jogador, data_presenca, criado_por }, { transaction });
 };
 
 const listarPresencasPorPeriodo = async (inicio, fim) => {
